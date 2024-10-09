@@ -87,7 +87,6 @@ def get_all_products() -> None:
     }
     try:
         for filename, link in to_scrape.items():
-            print(filename, urljoin(BASE_URL, link))
             products = scrape_page(driver, urljoin(BASE_URL, link))
             save_products_to_csv(products, filename)
     finally:
