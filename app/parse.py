@@ -85,7 +85,6 @@ def get_all_products() -> None:
         "phones.csv": "computers/tablets",
         "touch.csv": "phones/touch"
     }
-
     try:
         for filename, link in to_scrape.items():
             print(filename, urljoin(BASE_URL, link))
