@@ -7,10 +7,9 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from urllib.parse import urljoin
 import pandas as pd
+from webdriver_manager.chrome import ChromeDriverManager
 
-
-BASE_URL = "https://webscraper.io/"
-HOME_URL = urljoin(BASE_URL, "test-sites/e-commerce/more/")
+BASE_URL = "https://webscraper.io/test-sites/e-commerce/more/"
 
 
 @dataclass
@@ -25,7 +24,7 @@ class Product:
 def get_driver() -> WebDriver:
     options = Options()
     options.headless = True
-    service = Service(executable_path="C:/chromedriver-win64/chromedriver.exe")
+    service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=options)
     return driver
 
@@ -78,36 +77,20 @@ def save_products_to_csv(products: list[Product], filename: str) -> None:
 
 def get_all_products() -> None:
     driver = get_driver()
+    to_scrape = {
+        "home.csv": "",
+        "computers.csv": "computers",
+        "laptops.csv": "computers/laptops",
+        "tablets.csv": "computers/tablets",
+        "phones.csv": "computers/tablets",
+        "touch.csv": "phones/touch"
+    }
 
     try:
-        home_products = scrape_page(driver, HOME_URL)
-        save_products_to_csv(home_products, "home.csv")
-
-        computers_url = urljoin(BASE_URL,
-                                "test-sites/e-commerce/more/computers")
-        computer_products = scrape_page(driver, computers_url)
-        save_products_to_csv(computer_products, "computers.csv")
-
-        laptops_url = urljoin(BASE_URL,
-                              "test-sites/e-commerce/more/computers/laptops")
-        laptops_products = scrape_page(driver, laptops_url)
-        save_products_to_csv(laptops_products, "laptops.csv")
-
-        tablets_url = urljoin(BASE_URL,
-                              "test-sites/e-commerce/more/computers/tablets")
-        tablets_products = scrape_page(driver, tablets_url)
-        save_products_to_csv(tablets_products, "tablets.csv")
-
-        phones_url = urljoin(BASE_URL,
-                             "test-sites/e-commerce/more/phones")
-        phones_products = scrape_page(driver, phones_url)
-        save_products_to_csv(phones_products, "phones.csv")
-
-        touch_url = urljoin(BASE_URL,
-                            "test-sites/e-commerce/more/phones/touch")
-        touch_products = scrape_page(driver, touch_url)
-        save_products_to_csv(touch_products, "touch.csv")
-
+        for filename, link in to_scrape.items():
+            print(filename, urljoin(BASE_URL, link))
+            products = scrape_page(driver, urljoin(BASE_URL, link))
+            save_products_to_csv(products, filename)
     finally:
         driver.quit()
 
